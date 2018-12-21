@@ -15,3 +15,15 @@ The module to interface data
 ### logger
 
 The module to facilitate the process of logging
+
+### Intallation
+
+``{shell}
+pip install https://github.com/kislerdm/dk_utils/zipball/master
+``
+
+or
+
+``{shell}
+python3.6 -m pip install https://github.com/kislerdm/dk_utils/zipball/master
+``
