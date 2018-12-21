@@ -16,7 +16,9 @@ The module to interface data
 
 The module to facilitate the process of logging
 
-### Intallation
+## Intallation
+
+### From github
 
 ```shell
 pip install https://github.com/kislerdm/dk_utils/zipball/master
