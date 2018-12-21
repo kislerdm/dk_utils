@@ -18,12 +18,12 @@ The module to facilitate the process of logging
 
 ### Intallation
 
-``{shell}
+```shell
 pip install https://github.com/kislerdm/dk_utils/zipball/master
-``
+```
 
 or
 
-``{shell}
+```shell
 python3.6 -m pip install https://github.com/kislerdm/dk_utils/zipball/master
-``
+```
