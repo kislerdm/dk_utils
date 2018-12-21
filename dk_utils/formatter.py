@@ -4,7 +4,6 @@
 import pandas as pd
 import numpy as np
 
-
 def list_slit(lst, size=None):
     """
     Function to split range into n sub-ranges, or into m sub-ranges of the size <= size

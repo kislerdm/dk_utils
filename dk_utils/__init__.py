@@ -5,5 +5,6 @@ import io
 import formatter
 import logging
 
-name = "dk_utils"
+__name__ = "dk_utils"
+__version__ = "0.1"
 __all__ = ["formatter", "io", "logger"]
