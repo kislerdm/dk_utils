@@ -43,9 +43,9 @@ class Logger:
     :param kill: boolean - shall the script be interrupted
     """
 
-    def __init__(self, logfile, webhool_url=None, kill=True):
+    def __init__(self, logfile, webhook_url=None, kill=True):
 
-        self.url = webhool_url
+        self.url = webhook_url
         self.kill = kill
 
         logging.basicConfig(level=logging.INFO,
