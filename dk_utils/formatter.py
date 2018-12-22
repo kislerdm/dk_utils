@@ -4,6 +4,7 @@
 import pandas as pd
 import numpy as np
 
+
 def list_slit(lst, size=None):
     """
     Function to split range into n sub-ranges, or into m sub-ranges of the size <= size
@@ -39,6 +40,52 @@ def dict_subsetter(dict, keys):
     """
 
     return {k: dict[k] for k in keys if k in dict.keys()}
+
+
+def dict_flattener(dict_in, simplify_arrays=False):
+    """
+    Function to flatten a nested dict
+    ___
+    Required:
+    :dict_in: dict_in - input json/dictionary
+    :simplify_arrays: boolean - flag: shall the array be simplified
+    Output:
+    :dict: output flatten json
+    """
+
+    def _one_step(dict_in):
+        dict_out = {}
+        for k in dict_in.keys():
+            if isinstance(dict_in[k], dict):
+                for iK in dict_in[k].keys():
+                    iVal = dict_in[k][iK]
+                    if simplify_arrays:
+                        if isinstance(iVal, list):
+                            for iV in range(len(iVal)):
+                                dict_out['{}.{}_{}'.format(
+                                    k, iK, iV)] = iVal[iV]
+                        else:
+                            dict_out['{}.{}'.format(k, iK)] = iVal
+                    else:
+                        dict_out['{}.{}'.format(k, iK)] = iVal
+            else:
+                if simplify_arrays:
+                    iVal = dict_in[k]
+                    if isinstance(iVal, list):
+                        for iV in range(len(iVal)):
+                            dict_out['{}_{}'.format(k, iV)] = iVal[iV]
+                    else:
+                        dict_out[k] = dict_in[k]
+                else:
+                    dict_out[k] = dict_in[k]
+        return dict_out
+
+    dict_out = _one_step(dict_in)
+    while len(dict_in.keys()) < len(dict_out.keys()):
+        dict_in = dict_out
+        dict_out = _one_step(dict_in)
+
+    return dict_out
 
 
 def df_datatypes_downcast(df):
