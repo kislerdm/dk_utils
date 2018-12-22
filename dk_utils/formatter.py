@@ -38,7 +38,7 @@ def dict_subsetter(dict, keys):
 
     """
 
-    return {k: d[k] for k in keys if k in d.keys()}
+    return {k: dict[k] for k in keys if k in dict.keys()}
 
 
 def df_datatypes_downcast(df):
