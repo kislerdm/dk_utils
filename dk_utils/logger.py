@@ -13,19 +13,23 @@ def lineno():
     return inspect.currentframe().f_back.f_lineno
 
 
-def slack_webhook(url, msg):
+def slack_webhook(url, msg, color='#FC1414'):
     """
     Function to send an error msg as a slack webhook
 
     :param url: string - slack webhook URL
-    :param msg: string - the message text
+    :param webhook: dict with message and params:
+                    e.g. {'text':'text of message',
+                          'msg':'attachment message here',
+                          'title':'attachment title here',
+                          'color':'attachment border color'}
     """
 
     try:
         res = requests.post(url, json={'text': 'Trk Processor',
                                        'attachments': [{'title': 'Error!',
                                                         'text': msg,
-                                                        'color': '#FC1414'
+                                                        'color': color
                                                         }]
                                        })
     except:
@@ -39,13 +43,21 @@ class Logger:
     Logging class
 
     :param logfile: string - path where to write log into
-    :param webhook_url: string - URL for webhook
+    :param webhook: dict with webhook URL for and the webhook body:
+                    e.g. {
+                            'url':'webhook_url',
+                            'body': {'text':'text of message',
+                                      'msg':'attachment message here',
+                                      'title':'attachment title here',
+                                      'color':'attachment border color'
+                                      }
+                         }
     :param kill: boolean - shall the script be interrupted
     """
 
-    def __init__(self, logfile, webhook_url=None, kill=True):
+    def __init__(self, logfile, webhook=None, kill=True):
 
-        self.url = webhook_url
+        self.webhook = webhook
         self.kill = kill
 
         logging.basicConfig(level=logging.INFO,
@@ -55,7 +67,35 @@ class Logger:
                             filemode='a+')
         self.logger = logging.getLogger('logs')
 
-    def send(self, msg, linenum, info=False, send_webhook=True, kill=True, state=1):
+    @classmethod
+    def webhook(self, webhook):
+        """
+        Function to send an error msg as a slack webhook
+
+        :param webhook: dict with webhook URL for and the webhook body:
+                        e.g. {
+                                'url':'webhook_url',
+                                'body': {'text':'text of message',
+                                          'msg':'attachment message here',
+                                          'title':'attachment title here',
+                                          'color':'attachment border color'
+                                          }
+                             }
+        """
+
+        try:
+            res = requests.post(webhook['url'],
+                                json={'text': webhook['body']['text'],
+                                      'attachments': [{
+                                          'title': webhook['body']['title'],
+                                          'text': webhook['body']['msg'],
+                                          'color': webhook['body']['color']}]
+                                      })
+        except Exception as ex:
+            return False
+        return True
+
+    def send(self, msg, linenum, info=False, send_webhook=True, webhook=None, kill=True, state=1):
         """
         Function to send the message to a log file, and to a webhook
 
@@ -68,13 +108,20 @@ class Logger:
         """
 
         if info:
-            self.logger.info(f'{msg}. line: {linenum}.')
+            self.logger.info(f'{msg}.')
         else:
             self.logger.error(f'{msg}. line: {linenum}.')
 
         # send sebhook
-        if self.url and send_webhook:
-            _ = slack_webhook(self.url, f'Line: {linenum}\nError: {msg}')
+        if send_webhook and (self.webhook or webhook):
+            if webhook:
+                webhk = webhook
+            else:
+                webhk = self.webhook
+
+            webhk['body']['msg'] = f'Line: {linenum}\n{msg}'
+
+            _ = self.webhook(webhk)
         # kill the process
         if self.kill and kill:
             sys.exit(state)
