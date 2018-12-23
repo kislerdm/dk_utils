@@ -119,6 +119,7 @@ def df_datatypes_downcast(df):
                     df[col] = df[col].astype(np.float64)
     return True
 
+
 def sql_reader(path_sql, sql=None):
     """
     Function to read and split queries
@@ -126,6 +127,7 @@ def sql_reader(path_sql, sql=None):
     :param path_sql: path to queries
     :param sql: string with sql statements
     """
+
     # read the queries
     if sql:
         queries = sql
@@ -135,4 +137,4 @@ def sql_reader(path_sql, sql=None):
     # split the sql queries
     queries = [f'{iQ};' for iQ in queries.split(';')[:-1]]
 
-    return queries    
+    return queries
