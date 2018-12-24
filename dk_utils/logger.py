@@ -12,31 +12,6 @@ def lineno():
 
     return inspect.currentframe().f_back.f_lineno
 
-
-def slack_webhook(url, msg, color='#FC1414'):
-    """
-    Function to send an error msg as a slack webhook
-
-    :param url: string - slack webhook URL
-    :param webhook: dict with message and params:
-                    e.g. {'text':'text of message',
-                          'msg':'attachment message here',
-                          'title':'attachment title here',
-                          'color':'attachment border color'}
-    """
-
-    try:
-        res = requests.post(url, json={'text': 'Trk Processor',
-                                       'attachments': [{'title': 'Error!',
-                                                        'text': msg,
-                                                        'color': color
-                                                        }]
-                                       })
-    except:
-        return False
-    return res.ok
-
-
 class Logger:
 
     """
@@ -68,7 +43,7 @@ class Logger:
         self.logger = logging.getLogger('logs')
 
     @classmethod
-    def webhook(self, webhook):
+    def send_slack(self, webhook):
         """
         Function to send an error msg as a slack webhook
 
@@ -122,7 +97,7 @@ class Logger:
 
             webhk['body']['msg'] = f'Line: {linenum}\n{msg}'
 
-            _ = self.webhook(webhk)
+            _ = self.send_slack(webhk)
         # kill the process
         if self.kill and kill:
             sys.exit(state)
