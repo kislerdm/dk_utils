@@ -103,6 +103,7 @@ class Logger:
         :param msg: string - message to log
         :param info: boolean - is info message?
         :param send_webhook: boolen - shall the message be sent to webhook?
+        :param webhook: dict - webhook object
         :param kill: boolean - shall the script be interrupted
         :param state: [1,0] - error interruption state
         """
