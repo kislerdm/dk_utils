@@ -82,15 +82,14 @@ class Logger:
         :param kill: boolean - shall the script be interrupted
         :param state: [1,0] - error interruption state
         """
+        if linenum:
+            msg_send = f'{msg}.\nLine: {linenum}.'
+        if not linenum or info:
+            msg_send = f'{msg}.'
 
         if info:
-            self.logger.info(f'{msg}.')
+            self.logger.info(msg_send)
         else:
-            if linenum:
-                msg_send = f'{msg}.\nLine: {linenum}.'
-            else:
-                msg_send = f'{msg}.'
-
             self.logger.error(msg_send)
 
         # send sebhook
