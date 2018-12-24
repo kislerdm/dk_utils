@@ -70,7 +70,7 @@ class Logger:
             return False
         return True
 
-    def send(self, msg, linenum=None, info=False, send_webhook=True, webhook=None, kill=True, state=1):
+    def send(self, msg, info=False, send_webhook=True, webhook=None, kill=True, state=1):
         """
         Function to send the message to a log file, and to a webhook
 
@@ -82,15 +82,11 @@ class Logger:
         :param kill: boolean - shall the script be interrupted
         :param state: [1,0] - error interruption state
         """
-        if linenum:
-            msg_send = f'{msg}.\nLine: {linenum}.'
-        if not linenum or info:
-            msg_send = f'{msg}.'
-
+        
         if info:
-            self.logger.info(msg_send)
+            self.logger.info(f'{msg}')
         else:
-            self.logger.error(msg_send)
+            self.logger.error(f'{msg}')
 
         # send sebhook
         if send_webhook and (self.webhook or webhook):
@@ -99,7 +95,7 @@ class Logger:
             else:
                 webhk = self.webhook
 
-            webhk['body']['msg'] = msg_send
+            webhk['body']['msg'] = f'{msg}'
 
             _ = self.send_slack(webhk)
         # kill the process
