@@ -36,8 +36,11 @@ setuptools.setup(
         'pandas',
         'numpy',
         'kafka',
+        'psycopg2',
         'requests',
-        'logging'
+        'logging',
+        'shapely',
+        'Geohash'
     ],
     include_package_data=True,
     zip_safe=False)

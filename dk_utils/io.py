@@ -1,8 +1,11 @@
 # Functions to operate files
 # Author: D.Kisler <admin@dkisler.de>
 
+import sys
 import pickle
 import json
+import psycopg2 as pg
+import pandas as pd
 from kafka import KafkaProducer
 
 
@@ -29,6 +32,36 @@ def read_object(filename):
         obj = pickle.load(input_stream)
     return obj
 
+def db2df (con=None, query=None):
+
+    """
+   	Function to fetch data from DB and convert then into DataFrame object
+
+    :param con: DB connection
+    :param query: query to be executed
+    """
+
+    if not con:
+        return None, 'No connection provided!'
+
+    if not query:
+        return None, 'No query to execute!'
+
+    cur = con.cursor()
+
+    try:
+
+        cur.execute(query)
+        dat_header = [i[0] for i in cur.description]
+        dat = cur.fetchall()
+        dat_df = pd.DataFrame.from_dict(dat)
+        dat_df.columns = dat_header
+
+    except Exception as ex:
+        cur.close()
+        return None, str(ex)
+
+    return dat_df, None
 
 def msg_post_kafka(msg,
                    topic,
