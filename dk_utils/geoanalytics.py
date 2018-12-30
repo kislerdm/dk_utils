@@ -10,8 +10,9 @@ from shapely.geometry import (Point, #point
                               shape) # geopolygon
 
 
-def routing(start, finish, apikey,
-            mode,
+def routing(start, finish,
+            apikey,
+            mode, mode_transit=None,
             departure_ts=int(time.mktime(time.strptime(time.strftime('%Y-%m-%d 09:00:00'), '%Y-%m-%d %H:%M:%S')))):
     """
     A2B Routing/Directions Google API
@@ -57,7 +58,10 @@ def routing(start, finish, apikey,
 
     start = start.replace(' ', '+')
     finish = finish.replace(' ', '+')
-    url = f'https://maps.googleapis.com/maps/api/directions/json?origin={start}&destination={finish}&mode=transit&transit_mode=rail|bus&departure_time={departure_ts}&key={apikey}'
+    url = f'https://maps.googleapis.com/maps/api/directions/json?origin={start}&destination={finish}&mode={mode}&departure_time={departure_ts}&key={apikey}'
+
+    if mode_transit:
+        url += f'&transit_mode={mode_transit}'
 
     d = requests.get(url, headers={'accept': 'application/json'})
 
