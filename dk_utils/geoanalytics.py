@@ -66,3 +66,60 @@ def routing(start, finish, apikey,
 
     d = d.json()
     return _routing_details(d)
+
+def dist_geo_np(lat_start, lon_start,
+             lat_stop, lon_stop,
+             unit='m'):
+    """
+    Geodesic distance between two points
+
+    :param lat_start, lon_start: lat, lon of the starting point
+    :param lat_stop, lon_stop: lat, lon of the end point
+    :param unit: distance unit [m, km]
+    """
+
+    lat_coef = 110574
+    lon_coef = 111320
+
+    if unit == 'km':
+        lat_coef = lat_coef / 1000.
+        lon_coef = lon_coef / 1000.
+
+
+    try:
+
+        dist = np.sqrt(
+            np.power(np.multiply(lon_start, np.multiply(lon_coef, np.cos(np.multiply(lat_start, np.pi / 180)))) - \
+                     np.multiply(lon_stop, np.multiply(lon_coef, np.cos(np.multiply(lat_stop, np.pi / 180)))),2) +\
+            np.power(np.multiply(lat_start, lat_coef) - \
+                     np.multiply(lat_stop, lat_coef),2))
+
+        return dist, None
+
+    except Exception as ex:
+
+        return None, ex
+
+def dist_geo(lat_start, lon_start,
+             lat_stop, lon_stop,
+             unit='m'):
+
+    """
+    Geodesic distance between two points
+
+    :param lat_start, lon_start: lat, lon of the starting point
+    :param lat_stop, lon_stop: lat, lon of the end point
+    :param unit: distance unit [m, km]
+    """
+
+
+    lat_coef = 110574
+    lon_coef = 111320
+
+    if unit == 'km':
+        lat_coef=lat_coef/1000.
+        lon_coef=lon_coef/1000.
+
+    return np.sqrt( np.power(lon_start*lon_coef*np.cos(lat_start*np.pi/180) - \
+                             lon_stop*lon_coef*np.cos(lat_stop*np.pi/180), 2) + \
+                    np.power(lat_start*lat_coef - lat_stop*lat_coef, 2) )
