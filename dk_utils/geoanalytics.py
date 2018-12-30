@@ -21,7 +21,7 @@ def routing(start, finish,
     Required:
     :param start: A address, or lat,lng pair
     :param finish: B address, or lat,lng pair
-    :param apikey: API access keya
+    :param apikey: API access key
     :param mode: travaling mode [driving, walking, bicycling, transit]
     :param mode_transit: traffic transit mode
     Optional:
@@ -52,7 +52,7 @@ def routing(start, finish,
                     r['details'][mode]['distance'] += step['distance']['value']
                     r['details'][mode]['duration'] += step['duration']['value']
                     r['details'][mode]['n_change'] += 1
-        routes.append(r)
+            routes.append(r)
 
         return routes
 
