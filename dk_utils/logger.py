@@ -12,6 +12,7 @@ def lineno():
 
     return inspect.currentframe().f_back.f_lineno
 
+
 class Logger:
 
     """
@@ -82,11 +83,6 @@ class Logger:
         :param kill: boolean - shall the script be interrupted
         :param state: [1,0] - error interruption state
         """
-        
-        if info:
-            self.logger.info(f'{msg}')
-        else:
-            self.logger.error(f'{msg}')
 
         # send sebhook
         if send_webhook and (self.webhook or webhook):
@@ -98,6 +94,12 @@ class Logger:
             webhk['body']['msg'] = f'{msg}'
 
             _ = self.send_slack(webhk)
-        # kill the process
-        if self.kill and kill:
-            sys.exit(state)
+
+        if info:
+            self.logger.info(f'{msg}')
+        else:
+            self.logger.error(f'{msg}')
+
+            # kill the process
+            if self.kill and kill:
+                sys.exit(state)
