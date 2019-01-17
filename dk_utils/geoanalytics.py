@@ -6,14 +6,65 @@ import numpy as np
 import requests
 import time
 import json
-from shapely.geometry import (Point, #point
-                              shape) # geopolygon
+from shapely.geometry import (Point,  # point
+                              shape)  # geopolygon
 
 
-def routing(start, finish,
-            apikey,
-            mode, mode_transit=None,
-            departure_ts=int(time.mktime(time.strptime(time.strftime('%Y-%m-%d 09:00:00'), '%Y-%m-%d %H:%M:%S')))):
+def routing_here(start, finish,
+                 app_id, app_code,
+                 departure_ts=time.strftime('%Y-%m-%dT08:00:00Z'),
+                 walk_speed=1, walk_radius=6000,
+                 max_number_of_changes=10,
+                 alternatives=0):
+
+    """
+    Function to fetch data via HERE maps routing API
+
+    Pedestrian+public transport routing from A to B
+    Details: https://developer.here.com/documentation/routing/topics/request-public-transport-routes.html
+
+    :param start: lat,lng pair of the point A, e.g. 52.530,13.326
+    :param finish: lat,lng pair of the point B, e.g. 52.513,13.407
+    :param app_id: HERE maps app ID
+    :param app_code: HERE maps app code
+
+    Optional:
+    :param departure_ts: - timestamp for public transport departure
+    :param walk_speed: speed of walk im meters per sec.
+    :param walk_radius: max walking radius to A and from B. from 0 to 6000 meters
+    :param max_number_of_changes: for public transport
+    :param alternatives: alternatives for A-to-B connections. 0 - best route returend, max number is 3
+    """
+
+
+    try:
+
+        url = "https://route.api.here.com/routing/7.2/calculateroute.json?" + \
+                                        "app_id={}&app_code={}".format(app_id, app_code) +\
+                                        "&mode=fastest;publicTransport" + \
+                                        "&alternatives={}".format(alternatives) + \
+                                        "&departure={}".format(departure_ts) + \
+                                        "&walkSpeed={}".format(walk_speed) + \
+                                        "&walkRadius={}".format(walk_radius) + \
+                                        "&maxNumberOfChanges={}".format(max_number_of_changes) + \
+                                        "&waypoint0={s}&waypoint1={e}".format(s=start, e = finish)
+
+        d = requests.get(url, headers={'accept': 'application/json', 'UserAgent':'API'})
+
+        if d.ok:
+            return d.json(), None
+        else:
+            return None, f"API status code: {d.status_code}"
+
+    except Exception as ex:
+
+        return None, ex
+
+
+def routing_google(start, finish,
+                   apikey,
+                   mode, mode_transit=None,
+                   departure_ts=int(time.mktime(time.strptime(time.strftime('%Y-%m-%d 09:00:00'), '%Y-%m-%d %H:%M:%S')))):
     """
     A2B Routing/Directions Google API
     https://developers.google.com/maps/documentation/directions
@@ -27,8 +78,6 @@ def routing(start, finish,
     Optional:
     :param departure_ts: - timestamp for public transport departure
     """
-
-    from requests import get
 
     def _routing_details(d):
         """Routes details"""
@@ -71,7 +120,41 @@ def routing(start, finish,
     d = d.json()
     return _routing_details(d)
 
+
 def dist_geo_np(lat_start, lon_start,
+                lat_stop, lon_stop,
+                unit='m'):
+    """
+    Geodesic distance between two points
+
+    :param lat_start, lon_start: lat, lon of the starting point
+    :param lat_stop, lon_stop: lat, lon of the end point
+    :param unit: distance unit [m, km]
+    """
+
+    lat_coef = 110574
+    lon_coef = 111320
+
+    if unit == 'km':
+        lat_coef = lat_coef / 1000.
+        lon_coef = lon_coef / 1000.
+
+    try:
+
+        dist = np.sqrt(
+            np.power(np.multiply(lon_start, np.multiply(lon_coef, np.cos(np.multiply(lat_start, np.pi / 180))))
+                     - np.multiply(lon_stop, np.multiply(lon_coef, np.cos(np.multiply(lat_stop, np.pi / 180)))), 2)
+            + np.power(np.multiply(lat_start, lat_coef) -
+                     np.multiply(lat_stop, lat_coef), 2))
+
+        return dist, None
+
+    except Exception as ex:
+
+        return None, ex
+
+
+def dist_geo(lat_start, lon_start,
              lat_stop, lon_stop,
              unit='m'):
     """
@@ -89,41 +172,6 @@ def dist_geo_np(lat_start, lon_start,
         lat_coef = lat_coef / 1000.
         lon_coef = lon_coef / 1000.
 
-
-    try:
-
-        dist = np.sqrt(
-            np.power(np.multiply(lon_start, np.multiply(lon_coef, np.cos(np.multiply(lat_start, np.pi / 180)))) - \
-                     np.multiply(lon_stop, np.multiply(lon_coef, np.cos(np.multiply(lat_stop, np.pi / 180)))),2) +\
-            np.power(np.multiply(lat_start, lat_coef) - \
-                     np.multiply(lat_stop, lat_coef),2))
-
-        return dist, None
-
-    except Exception as ex:
-
-        return None, ex
-
-def dist_geo(lat_start, lon_start,
-             lat_stop, lon_stop,
-             unit='m'):
-
-    """
-    Geodesic distance between two points
-
-    :param lat_start, lon_start: lat, lon of the starting point
-    :param lat_stop, lon_stop: lat, lon of the end point
-    :param unit: distance unit [m, km]
-    """
-
-
-    lat_coef = 110574
-    lon_coef = 111320
-
-    if unit == 'km':
-        lat_coef=lat_coef/1000.
-        lon_coef=lon_coef/1000.
-
-    return np.sqrt( np.power(lon_start*lon_coef*np.cos(lat_start*np.pi/180) - \
-                             lon_stop*lon_coef*np.cos(lat_stop*np.pi/180), 2) + \
-                    np.power(lat_start*lat_coef - lat_stop*lat_coef, 2) )
+    return np.sqrt(np.power(lon_start * lon_coef * np.cos(lat_start * np.pi / 180)
+                            - lon_stop * lon_coef * np.cos(lat_stop * np.pi / 180), 2) +
+                   np.power(lat_start * lat_coef - lat_stop * lat_coef, 2))
