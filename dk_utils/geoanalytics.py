@@ -17,7 +17,6 @@ def routing_here(start, finish,
                  walk_speed=1, walk_radius=6000,
                  max_number_of_changes=10,
                  alternatives=0):
-
     """
     Function to fetch data via HERE maps routing API
 
@@ -38,23 +37,21 @@ def routing_here(start, finish,
     :param alternatives: alternatives for A-to-B connections. 0 - best route returend, max number is 3
     """
 
-
     try:
 
         url = "https://route.api.here.com/routing/7.2/calculateroute.json"
 
         d = requests.get(url,
-                         headers={'accept': 'application/json', 'UserAgent':'API'},
-                         params={"waypoint0":start,
-                                 "waypoint1":finish,
-                                 "app_id":app_id,
-                                 "app_code":app_code,
-                                 "mode":mode,
-                                 "departure":departure_ts,
-                                 "alternatives":alternatives,
-                                 "walkSpeed":walk_speed,
-                                 "walkRadius":walk_radius,
-                                 "maxNumberOfChanges":max_number_of_changes
+                         params={"waypoint0": start,
+                                 "waypoint1": finish,
+                                 "app_id": app_id,
+                                 "app_code": app_code,
+                                 "mode": mode,
+                                 "departure": departure_ts,
+                                 "alternatives": alternatives,
+                                 "walkSpeed": walk_speed,
+                                 "walkRadius": walk_radius,
+                                 "maxNumberOfChanges": max_number_of_changes
                                  })
 
         if d.ok:
@@ -150,7 +147,7 @@ def dist_geo_np(lat_start, lon_start,
             np.power(np.multiply(lon_start, np.multiply(lon_coef, np.cos(np.multiply(lat_start, np.pi / 180))))
                      - np.multiply(lon_stop, np.multiply(lon_coef, np.cos(np.multiply(lat_stop, np.pi / 180)))), 2)
             + np.power(np.multiply(lat_start, lat_coef) -
-                     np.multiply(lat_stop, lat_coef), 2))
+                       np.multiply(lat_stop, lat_coef), 2))
 
         return dist, None
 
