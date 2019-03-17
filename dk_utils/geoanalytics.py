@@ -14,9 +14,10 @@ def routing_here(start, finish,
                  app_id, app_code,
                  mode,
                  departure_ts='now',
-                 walk_speed=1, walk_radius=6000,
-                 max_number_of_changes=10,
-                 alternatives=0):
+                 walk_speed=None,
+                 walk_radius=None,
+                 max_number_of_changes=None,
+                 alternatives=None):
     """
     Function to fetch data via HERE maps routing API
 
@@ -37,22 +38,28 @@ def routing_here(start, finish,
     :param alternatives: alternatives for A-to-B connections. 0 - best route returend, max number is 3
     """
 
+    URL = "https://route.api.here.com/routing/7.2/calculateroute.json"
+
+    URL_params = {
+        "waypoint0": start,
+        "waypoint1": finish,
+        "app_id": app_id,
+        "app_code": app_code,
+        "mode": mode,
+        "departure": departure_ts
+        }
+
+    if walk_speed:
+        URL_params['walkSpeed'] = walk_speed
+    if alternatives:
+        URL_params['alternatives'] = alternatives
+    if walk_radius:
+        URL_params['walkRadius'] = walk_radius
+    if max_number_of_changes:
+        URL_params['maxNumberOfChanges'] = max_number_of_changes
+
     try:
-
-        URL = "https://route.api.here.com/routing/7.2/calculateroute.json"
-
-        d = requests.get(url=URL,
-                         params={"waypoint0": start,
-                                 "waypoint1": finish,
-                                 "app_id": app_id,
-                                 "app_code": app_code,
-                                 "mode": mode,
-                                 "departure": departure_ts,
-                                 "alternatives": alternatives,
-                                 "walkSpeed": walk_speed,
-                                 "walkRadius": walk_radius,
-                                 "maxNumberOfChanges": max_number_of_changes
-                                 })
+        d = requests.get(url=URL, params=URL_params)
 
         if d.ok:
             return d.json(), None
