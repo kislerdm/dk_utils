@@ -39,9 +39,9 @@ def routing_here(start, finish,
 
     try:
 
-        url = "https://route.api.here.com/routing/7.2/calculateroute.json"
+        URL = "https://route.api.here.com/routing/7.2/calculateroute.json"
 
-        d = requests.get(url,
+        d = requests.get(url=URL,
                          params={"waypoint0": start,
                                  "waypoint1": finish,
                                  "app_id": app_id,
