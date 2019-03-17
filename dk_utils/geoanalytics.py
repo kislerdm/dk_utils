@@ -12,7 +12,8 @@ from shapely.geometry import (Point,  # point
 
 def routing_here(start, finish,
                  app_id, app_code,
-                 departure_ts=time.strftime('%Y-%m-%dT08:00:00Z'),
+                 mode,
+                 departure_ts='now',
                  walk_speed=1, walk_radius=6000,
                  max_number_of_changes=10,
                  alternatives=0):
@@ -27,6 +28,7 @@ def routing_here(start, finish,
     :param finish: lat,lng pair of the point B, e.g. 52.513,13.407
     :param app_id: HERE maps app ID
     :param app_code: HERE maps app code
+    :param mode: routing mode
 
     Optional:
     :param departure_ts: - timestamp for public transport departure
@@ -39,17 +41,21 @@ def routing_here(start, finish,
 
     try:
 
-        url = "https://route.api.here.com/routing/7.2/calculateroute.json?" + \
-                                        "app_id={}&app_code={}".format(app_id, app_code) +\
-                                        "&mode=fastest;publicTransport" + \
-                                        "&alternatives={}".format(alternatives) + \
-                                        "&departure={}".format(departure_ts) + \
-                                        "&walkSpeed={}".format(walk_speed) + \
-                                        "&walkRadius={}".format(walk_radius) + \
-                                        "&maxNumberOfChanges={}".format(max_number_of_changes) + \
-                                        "&waypoint0={s}&waypoint1={e}".format(s=start, e = finish)
+        url = "https://route.api.here.com/routing/7.2/calculateroute.json"
 
-        d = requests.get(url, headers={'accept': 'application/json', 'UserAgent':'API'})
+        d = requests.get(url,
+                         headers={'accept': 'application/json', 'UserAgent':'API'},
+                         params={"waypoint0":start,
+                                 "waypoint1":finish,
+                                 "app_id":app_id,
+                                 "app_code":app_code,
+                                 "mode":mode,
+                                 "departure":departure_ts,
+                                 "alternatives":alternatives,
+                                 "walkSpeed":walk_speed,
+                                 "walkRadius":walk_radius,
+                                 "maxNumberOfChanges":max_number_of_changes
+                                 })
 
         if d.ok:
             return d.json(), None
@@ -57,7 +63,6 @@ def routing_here(start, finish,
             return None, f"API status code: {d.status_code}"
 
     except Exception as ex:
-
         return None, ex
 
 
